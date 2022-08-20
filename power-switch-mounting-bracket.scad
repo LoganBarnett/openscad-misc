@@ -1,11 +1,46 @@
+/**
+ * Provides a mount for a KCD1-101 power switch.
+ *
+ * The rocker switch is entirely encapsulated except for its face plate. The
+ * rear section comes out the bottom of the mount so the wires have somehwere to
+ * go that ideally enters whatever the mount is affixed to.
+ *
+ * The data sheet for the rocker switch can be found locally in this file:
+ * data-sheets/kcd1-101-rocker-switch.pdf
+ * The original URL is:
+ * https://www.hobbytronics.co.za/Content/external/1106/JINGHAN_ROCKER_SWITCH_KCD1_101.pdf
+ */
+
+/**
+ * The block (sans face plate and poles) as measured with calipers.
+ */
 body = [18.8, 11.5, 11.75];
+/**
+ * How far out to extend the shroud to allow wires to flow.
+ */
 wireGap = 20;
+/**
+ * General material thickness across the model. This could probably use higher
+ * fidelity.
+ */
 mountThickness = 4;
+/**
+ * Prevent z-fighting in the preview and quite possibly the export.
+ */
 zFix = 0.01;
 // Fix cylinder rendering - the y-plane is messed up.
 /* cylinderFix=0.5; */
 cylinderFix=0;
 $fn=100;
+/**
+ * Switch crossSection to true to see a cross section of the shroud. Great for
+ * debugging the inside of the shroud.
+ */
+crossSection=false;
+/**
+ * How wide to make the countersinks on the arms.
+ */
+countersinkDiameter=5;
 
 module arc(theta, thickness) {
   // Minus 1 because this increments one iteration ahead - therefore we cover
@@ -29,6 +64,10 @@ module arc(theta, thickness) {
       ]);
 }
 
+/**
+ * This volume is subtracted from the shroud to give the wires a place to go. It
+ * is curved to ease feeding wires and also to allow printing without supports.
+ */
 module wireCavity() {
   translate([0, body.y * 2 - mountThickness, mountThickness]) {
     difference() {
@@ -57,6 +96,10 @@ module wireCavity() {
   }
 }
 
+/**
+ * This encases the body of the switch. The face place rests along the opening
+ * of this shroud. The wires flow out the wire cavity in the back.
+ */
 module shroud() {
   translate([0, 0, body.z / 2 + mountThickness / 2])
     difference() {
@@ -75,20 +118,38 @@ module shroud() {
     }
 }
 
+/**
+ * Give us arms with countersinks in which we can mount the bracket to a
+ * surface.
+ */
 module mountCountersink() {
   let(dims = [
     body.x,
     body.y,
     mountThickness,
   ]) {
-    translate([body.x + mountThickness, dims.y, dims.z / 2])
-      cube(dims, center=true);
+    translate([ body.x + mountThickness, dims.y / 2, dims.z / 2]) {
+      difference() {
+        union() {
+          translate([dims.x / -4, 0, 0]) {
+            cube([dims.x / 2, dims.y, dims.z], center=true);
+          }
+          // Use nice rounded arms for less material.
+          rotate([0, 0, -90])
+            linear_extrude(height=dims.z, center=true)
+            arc(180, dims.y / 2);
+        }
+        cylinder(d=countersinkDiameter, h=dims.z * 2, center=true);
+      }
+    }
   }
 }
 
-difference() {
-  shroud();
-  /*
+/**
+ * This was instrumental in seeing what was going wrong with the wire cavity.
+ * Enable it setting `crossSection' to true.
+ */
+module shroudCrossSection() {
   translate([
     (body.x + (mountThickness * 2)) / -2,
     (body.y + wireGap + mountThickness) / 2,
@@ -99,13 +160,22 @@ difference() {
     body.y + wireGap + mountThickness + zFix,
     body.z + (mountThickness * 2) + zFix,
     ], center=true);
-  */
+}
+
+//------------------------------------------------------------------------------
+// Begin model composition.
+//------------------------------------------------------------------------------
+difference() {
+  shroud();
+  if(crossSection) {
+    shroudCrossSection();
+  }
   wireCavity();
 }
 
-/*
-translate([10, 0, 0]) {
-  wireCavity();
-}
-*/
 mountCountersink();
+scale([-1, 1, 1])
+  mountCountersink();
+//------------------------------------------------------------------------------
+// End model composition.
+//------------------------------------------------------------------------------
