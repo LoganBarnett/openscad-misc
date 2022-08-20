@@ -73,12 +73,12 @@ difference() {
     rotate([90, 0, 0])
     cylinder(center=true, r=screwBore, h=20);
 }
-frameHook(hookAngle);
-screwReciever(hookAngle);
+frameHook(180);
+screwReciever(180);
 
 translate([0, 15, 0]) {
-  frameHook(180);
-  screwReciever(180);
+  frameHook(hookAngle);
+  screwReciever(hookAngle);
   rotate([0, 180, 0])
     screwReciever(180);
 }
