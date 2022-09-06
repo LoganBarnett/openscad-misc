@@ -12,13 +12,14 @@
  */
 
 /**
- * The block (sans face plate and poles) as measured with calipers.
+ * The block (sans face plate and poles) as measured with calipers. Also
+ * accounts for some wiggle to actually fit the box in there.
  */
-body = [18.8, 11.5, 11.75];
+body = [19, 12, 12];
 /**
  * How far out to extend the shroud to allow wires to flow.
  */
-wireGap = 20;
+wireGap = 25;
 /**
  * General material thickness across the model. This could probably use higher
  * fidelity.
@@ -69,30 +70,14 @@ module arc(theta, thickness) {
  * is curved to ease feeding wires and also to allow printing without supports.
  */
 module wireCavity() {
-  translate([0, body.y * 2 - mountThickness, mountThickness]) {
+  translate([0, body.y * 2 - mountThickness, 0]) {
     difference() {
-      rotate([0, -90, 0])
+      // I found it easier to just scale the entire arc area to fit.
+      scale([1, wireGap - mountThickness * 2, body.z + mountThickness])
+        rotate([0, -90, 0])
         linear_extrude(height=body.x, center=true)
-          arc(90, body.z);
-      /* rotate([0, 90, 0]) */
-      /*   cylinder(r=body.z, h=body.x, center=true); */
-      let(fixedBody = [
-        body.x + zFix,
-        body.y + zFix + cylinderFix,
-        body.z + zFix,
-      ]) {
-        translate([0, body.y / -2, body.z / 2])
-          cube(fixedBody, center=true);
-        translate([0, body.y / -2, body.z / -2])
-          cube(fixedBody, center=true);
-        translate([0, body.y / 2, body.z / -2])
-          cube(fixedBody, center=true);
-      }
+          arc(90, 1);
     }
-    // Cut a hole through the shround to the bottom where the wires can come
-    // out.
-    translate([0, cylinderFix / 2 + body.y / 2, -mountThickness / 2])
-      cube([body.x, body.y, mountThickness + zFix * 2], center=true);
   }
 }
 
