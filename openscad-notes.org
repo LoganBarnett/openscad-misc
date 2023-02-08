@@ -1,0 +1,95 @@
+#+title:     OpenSCAD Notes
+#+author:    Logan Barnett-Hoy
+#+email:     logustus@gmail.com
+#+date:      <2022-09-05 Mon>
+#+language:  en
+#+file_tags:
+#+tags:
+
+* Cool Stuff
+
+** Common Tools
+
+OpenSCAD doesn't seem to have a packaging system per se, but there are some
+libraries out there that are very much worth having a look.
+
+*** dotSCAD
+
+https://www.reddit.com/r/openscad/comments/s8f5zm/voronoi_on_a_sphere/
+
+[[https://github.com/JustinSDK][@JustinSDK]] (RIP) has a wonderful set of complex transformation and mathematical
+tools in a library called [[https://github.com/JustinSDK/dotSCAD][dotSCAD]]. This includes noise, which can be very good
+for adding some organic variance to a model.
+
+[[https://www.reddit.com/user/justin_here/][Justin's posts on reddit]] also show a lot of awesome stuff that the library can
+do.
+
+Some examples:
+https://openhome.cc/eGossip/OpenSCAD/lib3x-vrn3_from.html
+
+[[https://openhome.cc/eGossip/OpenSCAD/images/lib3x-vrn3_from-1.JPG]]
+
+https://openhome.cc/eGossip/OpenSCAD/lib3x-nz_cell.html
+
+[[https://openhome.cc/eGossip/OpenSCAD/images/lib3x-nz_cell-1.JPG]]
+
+[[https://openhome.cc/eGossip/OpenSCAD/images/lib3x-nz_cell-2.JPG]]
+
+A city.
+
+[[https://raw.githubusercontent.com/JustinSDK/dotSCAD/master/featured_img/RandomCityTaiwan.JPG]]
+
+A rocky maze.
+
+[[https://raw.githubusercontent.com/JustinSDK/dotSCAD/master/featured_img/RockThetaMaze.JPG]]
+***
+** Projections
+
+You can accomplish some cool stuff with projections. For example, this shape
+generates a flat grid when a light is placed at the tip of where its northern
+pole would be. This could make for a great light fixture.
+
+[[https://cdn.thingiverse.com/renders/40/2f/0f/05/91/stereo_proj_small_preview_featured.jpg]]
+
+https://forum.openscad.org/stereographic-projections-tp20339p20356.html
+
+This post shows how one could do a projection onto a sphere. I saved the code
+itself, but have not tried it:
+
+#+begin_src scad :results none
+$fn=30;
+module 2D_shape() {
+        difference() {
+                offset(r=3) {
+                        square(size=[20,30], center=true);
+                }
+                square(size=[20,30], center=true);
+        }
+}
+
+module 3D_projection (dist) {
+        linear_extrude(height = dist, center = true, convexity = 4, scale=0.1) {
+                children();
+        }
+}
+
+module shell (rad, thick) {
+        difference() {
+                sphere(r=rad, center=true);
+                sphere(r=rad-thick, center=true);
+                translate([0,0,rad/2])
+                        cube([rad*2,rad*2,rad],center=true);
+        }
+}
+module result () {
+        difference() {
+                translate([0,0,24])
+                        shell(20,1);
+                %3D_projection (30) 2D_shape();
+
+        }
+}
+
+result();
+// shell(20,3);
+#+end_src
