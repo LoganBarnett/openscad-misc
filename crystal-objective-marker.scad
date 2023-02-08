@@ -21,9 +21,11 @@
 // https://cults3d.com/en/3d-model/game/openscad-crystal-procedural-generator
 //
 
-seed = 14;
-diameter = 20;
-height = 50;
+seed = 6255;
+measuredDiameter = 20;
+// If we make it slightly wider, it'll rest nicely inside on the top ring.
+diameter = measuredDiameter + 2;
+height = 64;
 sides = 12;
 vScale = 0.3;
 cylinderOffset=15;
@@ -42,11 +44,13 @@ module crystalTip(
 ) {
   $fn=sides;
   difference() {
-    scale([
-      1 + rands(-vScale, vScale, 1, seed)[0],
-      1 + rands(-vScale, vScale, 1, seed + 1)[0],
-      1,
-    ])
+    // Scaling would've added a nice organic touch to the crystal, but then the
+    // crystal wouldn't fit in the aperature.
+    /* scale([ */
+    /*   1 + rands(-vScale, vScale, 1, seed)[0], */
+    /*   1 + rands(-vScale, vScale, 1, seed + 1)[0], */
+    /*   1, */
+    /* ]) */
       translate([0, 0, cylinderOffset])
       cylinder(d=diameter, h=height, center = true);
     for(i=[0 : sides]) {
@@ -103,9 +107,11 @@ crystalTip(
 // Ugh. Why do we have to fix these two?
 sphereFix=1.044;
 translate([0, 0, -height / 2 + cylinderOffset ])
-  scale([
-    sphereFix * 1 + rands(-vScale, vScale, 1, seed)[0],
-    sphereFix * 1 + rands(-vScale, vScale, 1, seed + 1)[0],
-    1,
-  ])
+  // Scaling would've added a nice organic touch to the crystal, but then the
+  // crystal wouldn't fit in the aperature.
+  /* scale([ */
+  /*   sphereFix * 1 + rands(-vScale, vScale, 1, seed)[0], */
+  /*   sphereFix * 1 + rands(-vScale, vScale, 1, seed + 1)[0], */
+  /*   1, */
+  /* ]) */
   sphere(d=diameter, $fn=sides);
