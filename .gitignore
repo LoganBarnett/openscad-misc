@@ -4,3 +4,8 @@
 
 # Ignore generated files.
 *.stl
+
+# Ignore slicer files that ultimately wind up in here due to adjacency.
+*.chitubox
+*.gcode
+*.photons
