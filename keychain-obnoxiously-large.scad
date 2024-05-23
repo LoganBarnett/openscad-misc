@@ -1,4 +1,6 @@
-bodyString = "Shed";
+// TODO: Make a list and map it.
+bodyString = "Bike Shed";
+shape = "circle";
 thickness = 2.5;
 bodyWidth = 50;
 bodySize = [bodyWidth, bodyWidth, thickness ];
@@ -18,7 +20,14 @@ module bodyText() {
 
 module body() {
   difference() {
-    cube(bodySize, center=true);
+    if(shape == "circle") {
+      translate([0, 0, -thickness / 2.0])
+        linear_extrude(thickness)
+        // Hypotenuse to reach the key hole.
+        circle(d=bodyWidth * 1.414);
+    } else {
+      cube(bodySize, center=true);
+    }
     translate([0, 0, thickness / 3.0 / 2.0 + 0.1]) {
       bodyText();
     }
